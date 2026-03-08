@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RebalanceAI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 800px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 24px;
+      color: white;
+    }
+
+    .header h1 { font-size: 22px; margin-bottom: 4px; }
+    .header p  { font-size: 13px; opacity: 0.85; }
+
+    .suggestions {
+      padding: 12px 16px;
+      background: #f8f9ff;
+      border-bottom: 1px solid #e8ecff;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .suggestion-btn {
+      background: white;
+      border: 1px solid #667eea;
+      color: #667eea;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggestion-btn:hover { background: #667eea; color: white; }
+
+    #chat {
+      height: 420px;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message { display: flex; flex-direction: column; max-width: 85%; }
+    .message.user  { align-self: flex-end; }
+    .message.bot   { align-self: flex-start; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message.user .bubble {
+      background: #667eea;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot .bubble {
+      background: #f0f2f5;
+      color: #2c3e50;
+      border-bottom-left-radius: 4px;
+    }
+
+    .label {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 4px;
+      padding: 0 4px;
+    }
+    .message.user .label { text-align: right; }
+
+    .typing { display: flex; gap: 4px; padding: 14px 16px; }
+    .typing span {
+      width: 8px; height: 8px;
+      background: #999;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30%            { transform: translateY(-6px); }
+    }
+
+    .input-area {
+      display: flex;
+      padding: 16px;
+      gap: 10px;
+      border-top: 1px solid #eee;
+      background: white;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    #userInput:focus { border-color: #667eea; }
+
+    #sendBtn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 24px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #sendBtn:hover    { opacity: 0.9; }
+    #sendBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 11px;
+      color: #aaa;
+      padding: 8px;
+      background: #fafafa;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>💼 RebalanceAI Assistant</h1>
+    <p>AI-powered portfolio optimization & stock analysis</p>
+  </div>
+
+  <div class="suggestions">
+    <button class="suggestion-btn" onclick="fillInput('Should I buy Apple stock?')">Should I buy Apple?</button>
+    <button class="suggestion-btn" onclick="fillInput('Compare TSLA and NVDA')">Compare TSLA vs NVDA</button>
+    <button class="suggestion-btn" onclick="fillInput('Build me a $10,000 moderate risk portfolio')">$10k moderate portfolio</button>
+    <button class="suggestion-btn" onclick="fillInput('Build me a $50,000 aggressive portfolio')">$50k aggressive portfolio</button>
+  </div>
+
+  <div id="chat">
+    <div class="message bot">
+      <div class="label">🤖 RebalanceAI</div>
+      <div class="bubble">Hi! I'm RebalanceAI 👋
+
+I can help you with:
+• Stock analysis & BUY/SELL/HOLD recommendations
+• Comparing stocks side by side
+• Building optimized portfolios (Conservative / Moderate / Aggressive)
+• Monte Carlo risk forecasting
+
+Try one of the suggestions above or type your own question!</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input id="userInput" type="text" placeholder="Ask me about stocks or portfolios..." />
+    <button id="sendBtn" onclick="sendMessage()">Send ➤</button>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ For informational purposes only. Not financial advice. Always do your own research.
+  </div>
+
+</div>
+
+<script>
+  // ── UPDATE THIS after you deploy to Render ──
+  const BACKEND = "https://your-render-app.onrender.com";
+
+  const chat    = document.getElementById('chat');
+  const input   = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+
+  function fillInput(text) {
+    input.value = text;
+    input.focus();
+  }
+
+  function addMessage(role, text) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `message ${role}`;
+
+    const label  = document.createElement('div');
+    label.className = 'label';
+    label.textContent = role === 'user' ? '👤 You' : '🤖 RebalanceAI';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(bubble);
+    chat.appendChild(wrapper);
+    chat.scrollTop = chat.scrollHeight;
+    return bubble;
+  }
+
+  function addTyping() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'message bot';
+    wrapper.id = 'typing';
+    wrapper.innerHTML = `
+      <div class="label">🤖 RebalanceAI</div>
+      <div class="bubble typing">
+        <span></span><span></span><span></span>
+      </div>`;
+    chat.appendChild(wrapper);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    addMessage('user', msg);
+    input.value = '';
+    sendBtn.disabled = true;
+    addTyping();
+
+    try {
+      const res  = await fetch(`${BACKEND}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+      const data = await res.json();
+      document.getElementById('typing')?.remove();
+      addMessage('bot', data.response);
+    } catch (err) {
+      document.getElementById('typing')?.remove();
+      addMessage('bot', '❌ Could not connect to the server. Please try again in a moment — the server may be waking up (this can take ~30 seconds on first load).');
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  input.addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+</script>
+</body>
+</html>

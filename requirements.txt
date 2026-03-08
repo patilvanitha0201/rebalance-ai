@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+yfinance
+pandas
+numpy
+scipy
+textblob
+vaderSentiment
+langchain
+langchain-openai
+langchain-community
+openai
+tqdm
+requests
+pytz
