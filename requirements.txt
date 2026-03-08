@@ -6,9 +6,9 @@ numpy
 scipy
 textblob
 vaderSentiment
-langchain
-langchain-openai
-langchain-community
+langchain==0.1.20
+langchain-openai==0.1.8
+langchain-community==0.0.38
 openai
 tqdm
 requests
