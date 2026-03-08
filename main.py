@@ -26,7 +26,8 @@ from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # ── LangChain ─────────────────────────────────────────────────────────────────
-from langchain.agents import Tool, initialize_agent, AgentType
+from langchain.agents import initialize_agent, AgentType
+from langchain.tools import Tool
 from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferWindowMemory
 
@@ -35,7 +36,7 @@ from langchain.memory import ConversationBufferWindowMemory
 # ===========================================
 
 NEWS_API_KEY   = os.environ.get('NewsAPI')
-OPENAI_API_KEY = os.environ.get('GPT')
+OPENAI_API_KEY = os.environ.get('gpt')
 
 RISK_PROFILES = {
     "conservative": {
